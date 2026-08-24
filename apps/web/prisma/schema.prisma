@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model HospitalProfile {
+  id               String  @id @default(cuid())
+  name             String
+  profileType      String // rural | urban_trauma | community
+  visitsPerDay     Int
+  resusBeds        Int
+  acuteBeds        Int
+  fastTrackSlots   Int
+  surgeMultiplier  Float   @default(3)
+  languagesJson    String  @default("[\"en\",\"hi\"]")
+  surgeMode        Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Patient {
+  id              String   @id @default(cuid())
+  externalId      String   @unique
+  displayName     String
+  ageYears        Int
+  sex             String   @default("U")
+  hasPriorRecord  Boolean  @default(false)
+  priorHistoryJson String?
+  tagsJson        String   @default("[]")
+  demoNotes       String?
+  dataClass       String   @default("TRIAGE_OPERATIONAL")
+  retentionUntil  DateTime?
+  createdAt       DateTime @default(now())
+  encounters      Encounter[]
+}
+
+model Encounter {
+  id                    String   @id @default(cuid())
+  patientId             String
+  patient               Patient  @relation(fields: [patientId], references: [id])
+  chiefComplaint        String
+  observedCuesJson      String   @default("[]")
+  vitalsJson            String   @default("{}")
+  arrivalMode           String   @default("walk_in")
+  languageBarrier       Boolean  @default(false)
+  underReportingSuspected Boolean @default(false)
+  status                String   @default("waiting") // waiting | in_care | discharged
+  arrivedAt             DateTime @default(now())
+  lastAssessedAt        DateTime @default(now())
+  waitingMinutesSim     Int      @default(0)
+  active                Boolean  @default(true)
+  assessments           TriageAssessment[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model TriageAssessment {
+  id                     String   @id @default(cuid())
+  encounterId            String
+  encounter              Encounter @relation(fields: [encounterId], references: [id])
+  esi                    Int
+  bucket                 String
+  confidence             Float
+  escalationBiasApplied  Boolean
+  uncertaintyDriversJson String
+  factorsJson            String
+  ageStratum             String
+  recommendedRoute       String
+  watchReassessMinutes   Int
+  summary                String
+  source                 String   @default("ENGINE") // ENGINE | OVERRIDE
+  overrideReasonCode     String?
+  overrideNote           String?
+  clinicianId            String?
+  clinicianRole          String?
+  previousEsi            Int?
+  inputHash              String
+  createdAt              DateTime @default(now())
+}
+
+model AuditEvent {
+  id              String   @id @default(cuid())
+  action          String
+  entityType      String
+  entityId        String
+  clinicianId     String?
+  clinicianRole   String?
+  purpose         String   @default("TRIAGE_DECISION_SUPPORT")
+  dataClass       String   @default("AUDIT")
+  payloadJson     String
+  inputHash       String?
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([entityId])
+}
