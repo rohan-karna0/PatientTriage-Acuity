@@ -32,8 +32,7 @@ docs/
 │   ├── ARCHITECTURE.md       System design, API, scoring pipeline
 │   ├── EVALUATION.md         Golden benchmark methodology
 │   ├── EVALUATION_RESULTS.md Committed test + benchmark snapshot
-│   ├── DATA_FLOW.md          Where intake & override data is stored
-│   └── DEPLOY.md             Railway / Vercel deploy guide
+│   └── DATA_FLOW.md          Where intake & override data is stored
 ├── proposal/
 │   └── BUSINESS_PROPOSAL.md  Problem, solution, roadmap, validation
 └── compliance/
