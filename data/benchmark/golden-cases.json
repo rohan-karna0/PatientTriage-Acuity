@@ -1,0 +1,514 @@
+[
+  {
+    "id": "G-critical-001",
+    "category": "critical",
+    "description": "Unresponsive after collapse — must be ESI 1",
+    "input": {
+      "ageYears": 50,
+      "chiefComplaint": "unresponsive after collapse",
+      "hasPriorRecord": false,
+      "arrivalMode": "ambulance",
+      "vitals": { "heartRate": 40, "respiratoryRate": 6, "systolicBp": 70, "spo2": 78, "gcs": 5 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 1,
+    "mustEscalateBias": false,
+    "expectedRoute": "resus"
+  },
+  {
+    "id": "G-critical-002",
+    "category": "critical",
+    "description": "Cardiac arrest presentation",
+    "input": {
+      "ageYears": 62,
+      "chiefComplaint": "cardiac arrest witnessed",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["CAD"], "allergies": [], "medications": ["aspirin"], "recentAdmissions": 1 },
+      "vitals": { "heartRate": 30, "spo2": 75, "gcs": 3 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 1,
+    "mustEscalateBias": false,
+    "expectedRoute": "resus"
+  },
+  {
+    "id": "G-critical-003",
+    "category": "critical",
+    "description": "Severe hypoxia adult",
+    "input": {
+      "ageYears": 55,
+      "chiefComplaint": "difficulty breathing",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 120, "respiratoryRate": 32, "spo2": 85, "systolicBp": 100 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-critical-004",
+    "category": "critical",
+    "description": "Chest pain radiating — ACS risk",
+    "input": {
+      "ageYears": 58,
+      "chiefComplaint": "chest pain radiating to left arm",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["hyperlipidemia"], "allergies": [], "medications": ["atorvastatin"], "recentAdmissions": 0 },
+      "arrivalMode": "ambulance",
+      "vitals": { "heartRate": 110, "spo2": 94, "painScore": 8 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-critical-005",
+    "category": "critical",
+    "description": "Severe anaphylaxis",
+    "input": {
+      "ageYears": 28,
+      "chiefComplaint": "allergic reaction with difficulty breathing",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 130, "respiratoryRate": 28, "systolicBp": 88, "spo2": 90 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-critical-006",
+    "category": "critical",
+    "description": "Ongoing seizure",
+    "input": {
+      "ageYears": 22,
+      "chiefComplaint": "seizure ongoing",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 140, "gcs": 8 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-critical-007",
+    "category": "critical",
+    "description": "Pediatric severe respiratory distress",
+    "input": {
+      "ageYears": 4,
+      "chiefComplaint": "difficulty breathing and wheeze",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["asthma"], "allergies": [], "medications": ["salbutamol"], "recentAdmissions": 1 },
+      "vitals": { "heartRate": 150, "respiratoryRate": 44, "spo2": 89, "temperatureC": 37.2 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-critical-008",
+    "category": "critical",
+    "description": "Geriatric hypotension with confusion",
+    "input": {
+      "ageYears": 80,
+      "chiefComplaint": "confusion and generally unwell",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["CKD", "diabetes"], "allergies": [], "medications": ["insulin"], "recentAdmissions": 2 },
+      "vitals": { "heartRate": 108, "systolicBp": 82, "spo2": 91, "temperatureC": 38.3, "gcs": 13 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-ambiguous-001",
+    "category": "ambiguous",
+    "description": "Non-specific weakness adult",
+    "input": {
+      "ageYears": 45,
+      "chiefComplaint": "weakness",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 84, "spo2": 97 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": true
+  },
+  {
+    "id": "G-ambiguous-002",
+    "category": "ambiguous",
+    "description": "Dizziness without clear cause",
+    "input": {
+      "ageYears": 38,
+      "chiefComplaint": "dizziness",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 78, "spo2": 98, "systolicBp": 118 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-ambiguous-003",
+    "category": "ambiguous",
+    "description": "Geriatric weakness — atypical presentation",
+    "input": {
+      "ageYears": 76,
+      "chiefComplaint": "weakness and dizziness",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["hypertension", "CAD"], "allergies": [], "medications": ["amlodipine"], "recentAdmissions": 0 },
+      "vitals": { "heartRate": 92, "spo2": 95 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": true
+  },
+  {
+    "id": "G-ambiguous-004",
+    "category": "ambiguous",
+    "description": "Malaise with sparse vitals",
+    "input": {
+      "ageYears": 66,
+      "chiefComplaint": "not feeling well, malaise",
+      "hasPriorRecord": false,
+      "vitals": { "temperatureC": 38.0, "heartRate": 96 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": true
+  },
+  {
+    "id": "G-ambiguous-005",
+    "category": "ambiguous",
+    "description": "Fatigue with under-reporting suspicion",
+    "input": {
+      "ageYears": 52,
+      "chiefComplaint": "fatigue",
+      "hasPriorRecord": false,
+      "underReportingSuspected": true,
+      "vitals": { "heartRate": 88, "spo2": 97 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": true
+  },
+  {
+    "id": "G-peds-001",
+    "category": "pediatric",
+    "description": "Pediatric fever 38.5°C — age-sensitive",
+    "input": {
+      "ageYears": 3,
+      "chiefComplaint": "fever and cough",
+      "hasPriorRecord": false,
+      "vitals": { "temperatureC": 38.5, "heartRate": 140, "respiratoryRate": 36, "spo2": 95 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-peds-002",
+    "category": "pediatric",
+    "description": "Infant high fever",
+    "input": {
+      "ageYears": 1,
+      "chiefComplaint": "fever",
+      "hasPriorRecord": false,
+      "vitals": { "temperatureC": 39.2, "heartRate": 155, "respiratoryRate": 38, "spo2": 96 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-peds-003",
+    "category": "pediatric",
+    "description": "Adolescent dehydration",
+    "input": {
+      "ageYears": 14,
+      "chiefComplaint": "vomiting and not drinking",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 120, "respiratoryRate": 22, "spo2": 98 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 4,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-peds-004",
+    "category": "pediatric",
+    "description": "Child minor injury",
+    "input": {
+      "ageYears": 10,
+      "chiefComplaint": "ankle injury after fall",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": [], "allergies": [], "medications": [], "recentAdmissions": 0 },
+      "vitals": { "heartRate": 90, "spo2": 99, "painScore": 5 }
+    },
+    "expectedEsiMin": 4,
+    "expectedEsiMax": 5,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-geri-001",
+    "category": "geriatric",
+    "description": "Geriatric COPD exacerbation",
+    "input": {
+      "ageYears": 72,
+      "chiefComplaint": "shortness of breath",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["COPD"], "allergies": [], "medications": ["tiotropium"], "recentAdmissions": 2 },
+      "arrivalMode": "ambulance",
+      "vitals": { "heartRate": 115, "respiratoryRate": 28, "spo2": 88, "systolicBp": 145 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-geri-002",
+    "category": "geriatric",
+    "description": "Geriatric fall on anticoagulant",
+    "input": {
+      "ageYears": 78,
+      "chiefComplaint": "fall with head injury",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["atrial fibrillation"], "allergies": [], "medications": ["warfarin"], "recentAdmissions": 0 },
+      "vitals": { "heartRate": 88, "systolicBp": 155, "gcs": 14 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-geri-003",
+    "category": "geriatric",
+    "description": "Low-grade fever geriatric — lower threshold",
+    "input": {
+      "ageYears": 70,
+      "chiefComplaint": "fever and weakness",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["diabetes"], "allergies": [], "medications": ["metformin"], "recentAdmissions": 0 },
+      "vitals": { "temperatureC": 38.1, "heartRate": 95, "spo2": 95 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-zero-001",
+    "category": "zero_history",
+    "description": "First-time walk-in abdominal pain",
+    "input": {
+      "ageYears": 34,
+      "chiefComplaint": "abdominal pain",
+      "hasPriorRecord": false,
+      "languageBarrier": true,
+      "vitals": { "heartRate": 92, "spo2": 98, "painScore": 6 }
+    },
+    "expectedEsiMin": 3,
+    "expectedEsiMax": 4,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-zero-002",
+    "category": "zero_history",
+    "description": "Zero history sparse vitals",
+    "input": {
+      "ageYears": 29,
+      "chiefComplaint": "chest discomfort",
+      "hasPriorRecord": false
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": true
+  },
+  {
+    "id": "G-zero-003",
+    "category": "zero_history",
+    "description": "First visit allergic reaction",
+    "input": {
+      "ageYears": 19,
+      "chiefComplaint": "allergic reaction after food",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 118, "spo2": 94, "systolicBp": 98 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-minor-001",
+    "category": "minor",
+    "description": "Ankle sprain stable vitals",
+    "input": {
+      "ageYears": 25,
+      "chiefComplaint": "ankle sprain",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 72, "respiratoryRate": 16, "systolicBp": 120, "spo2": 99, "temperatureC": 36.8, "painScore": 4 }
+    },
+    "expectedEsiMin": 4,
+    "expectedEsiMax": 5,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-minor-002",
+    "category": "minor",
+    "description": "Minor laceration",
+    "input": {
+      "ageYears": 30,
+      "chiefComplaint": "laceration on forearm",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 80, "spo2": 99, "painScore": 3 }
+    },
+    "expectedEsiMin": 4,
+    "expectedEsiMax": 5,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-minor-003",
+    "category": "minor",
+    "description": "Known migraine returning patient",
+    "input": {
+      "ageYears": 35,
+      "chiefComplaint": "migraine headache",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["migraine"], "allergies": [], "medications": ["sumatriptan"], "recentAdmissions": 0 },
+      "vitals": { "heartRate": 76, "spo2": 99, "painScore": 7, "gcs": 15 }
+    },
+    "expectedEsiMin": 3,
+    "expectedEsiMax": 5,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-minor-004",
+    "category": "minor",
+    "description": "Sore throat low acuity",
+    "input": {
+      "ageYears": 22,
+      "chiefComplaint": "sore throat",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 82, "spo2": 99, "temperatureC": 37.8, "painScore": 3 }
+    },
+    "expectedEsiMin": 4,
+    "expectedEsiMax": 5,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-high-001",
+    "category": "critical",
+    "description": "Intentional overdose",
+    "input": {
+      "ageYears": 41,
+      "chiefComplaint": "overdose intentional",
+      "hasPriorRecord": true,
+      "priorHistory": { "conditions": ["depression"], "allergies": [], "medications": ["sertraline"], "recentAdmissions": 1 },
+      "arrivalMode": "ambulance",
+      "vitals": { "heartRate": 52, "respiratoryRate": 10, "spo2": 91, "gcs": 11 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 2,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-high-002",
+    "category": "critical",
+    "description": "Severe abdominal pain",
+    "input": {
+      "ageYears": 44,
+      "chiefComplaint": "severe abdominal pain",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 118, "painScore": 9, "systolicBp": 100, "temperatureC": 38.0 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-under-001",
+    "category": "under_reporting",
+    "description": "Under-reported chest pain",
+    "input": {
+      "ageYears": 55,
+      "chiefComplaint": "mild chest discomfort",
+      "hasPriorRecord": false,
+      "underReportingSuspected": true,
+      "vitals": { "heartRate": 104, "spo2": 96, "painScore": 2 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-surge-001",
+    "category": "ambiguous",
+    "description": "Ambiguous case — surge should escalate vs quiet",
+    "input": {
+      "ageYears": 42,
+      "chiefComplaint": "weakness",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 80, "spo2": 97 }
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 3,
+    "mustEscalateBias": false,
+    "testSurgeEscalation": true
+  },
+  {
+    "id": "G-adult-fever-001",
+    "category": "adult_comparator",
+    "description": "Adult same fever as pediatric comparator — less urgent",
+    "input": {
+      "ageYears": 35,
+      "chiefComplaint": "fever and cough",
+      "hasPriorRecord": false,
+      "vitals": { "temperatureC": 38.5, "heartRate": 88, "respiratoryRate": 18, "spo2": 97 }
+    },
+    "expectedEsiMin": 3,
+    "expectedEsiMax": 5,
+    "mustEscalateBias": false,
+    "compareStricterThan": "G-peds-001"
+  },
+  {
+    "id": "G-route-001",
+    "category": "critical",
+    "description": "ESI 1 must route to resus",
+    "input": {
+      "ageYears": 60,
+      "chiefComplaint": "not breathing adequately",
+      "hasPriorRecord": false,
+      "vitals": { "spo2": 80, "respiratoryRate": 8 }
+    },
+    "expectedEsiMin": 1,
+    "expectedEsiMax": 1,
+    "expectedRoute": "resus",
+    "mustEscalateBias": false
+  },
+  {
+    "id": "G-route-002",
+    "category": "minor",
+    "description": "Low acuity fast-track",
+    "input": {
+      "ageYears": 27,
+      "chiefComplaint": "minor cut on finger",
+      "hasPriorRecord": false,
+      "vitals": { "heartRate": 74, "spo2": 99, "painScore": 2 }
+    },
+    "expectedEsiMin": 4,
+    "expectedEsiMax": 5,
+    "expectedRoute": "fast_track"
+  },
+  {
+    "id": "G-confidence-001",
+    "category": "zero_history",
+    "description": "Must always emit confidence",
+    "input": {
+      "ageYears": 50,
+      "chiefComplaint": "general complaint",
+      "hasPriorRecord": false
+    },
+    "expectedEsiMin": 2,
+    "expectedEsiMax": 4,
+    "mustEscalateBias": true,
+    "requireConfidence": true
+  }
+]
