@@ -12,3 +12,5 @@ apps/web/prisma/dev.db-journal
 *.log
 coverage/
 .turbo/
+*.tsbuildinfo
+packages/triage-engine/benchmark-report.json

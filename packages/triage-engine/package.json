@@ -8,17 +8,23 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./evaluate": {
+      "types": "./dist/evaluate.d.ts",
+      "default": "./dist/evaluate.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "evaluate": "tsx scripts/evaluate.ts"
   },
   "dependencies": {
     "@acuity/shared": "*"
   },
   "devDependencies": {
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
   }

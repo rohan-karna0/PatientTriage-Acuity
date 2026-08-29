@@ -47,7 +47,7 @@ export function encounterToInput(encounter: {
     chiefComplaint: encounter.chiefComplaint,
     observedCues: parseJson<string[]>(encounter.observedCuesJson, []),
     vitals: parseJson<Vitals>(encounter.vitalsJson, {}),
-    priorHistory: parseJson<PriorHistory | null>(encounter.priorHistoryJson, null),
+    priorHistory: parseJson<PriorHistory | null>(encounter.patient.priorHistoryJson, null),
     hasPriorRecord: encounter.patient.hasPriorRecord,
     arrivalMode: encounter.arrivalMode as TriageInput["arrivalMode"],
     languageBarrier: encounter.languageBarrier,
@@ -102,6 +102,9 @@ export async function assessEncounter(encounterId: string, source = "ENGINE") {
     inputHash,
     payload: {
       assessmentId: assessment.id,
+      patientDisplayName: encounter.patient.displayName,
+      patientExternalId: encounter.patient.externalId,
+      chiefComplaint: encounter.chiefComplaint,
       esi: result.esi,
       bucket: result.bucket,
       confidence: result.confidence,

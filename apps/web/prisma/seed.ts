@@ -2,8 +2,8 @@ import { readFileSync } from "fs";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
 import { scoreTriage } from "@acuity/triage-engine";
-import { createHash } from "crypto";
 import type { PriorHistory, TriageInput, Vitals } from "@acuity/shared";
+import { hashInputs } from "../src/lib/utils";
 
 const prisma = new PrismaClient();
 
@@ -23,10 +23,6 @@ type SeedPatient = {
   tags: string[];
   demoNotes: string;
 };
-
-function hashInputs(payload: unknown): string {
-  return createHash("sha256").update(JSON.stringify(payload)).digest("hex").slice(0, 32);
-}
 
 async function main() {
   await prisma.auditEvent.deleteMany();

@@ -23,6 +23,14 @@ export async function POST(req: Request) {
 
   const { encounterId, newEsi, reasonCode, note } = parsed.data;
   const hospital = await prisma.hospitalProfile.findFirst();
+  const encounter = await prisma.encounter.findUnique({
+    where: { id: encounterId },
+    include: { patient: true },
+  });
+  if (!encounter) {
+    return NextResponse.json({ error: "Encounter not found" }, { status: 404 });
+  }
+
   const prior = await prisma.triageAssessment.findFirst({
     where: { encounterId },
     orderBy: { createdAt: "desc" },
@@ -81,6 +89,9 @@ export async function POST(req: Request) {
     inputHash,
     payload: {
       assessmentId: assessment.id,
+      patientDisplayName: encounter.patient.displayName,
+      patientExternalId: encounter.patient.externalId,
+      chiefComplaint: encounter.chiefComplaint,
       previousEsi: prior.esi,
       newEsi: esi,
       reasonCode,

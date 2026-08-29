@@ -11,6 +11,8 @@
     "dev": "npm run dev -w @acuity/web",
     "build": "npm run build -w @acuity/shared && npm run build -w @acuity/triage-engine && npm run build -w @acuity/web",
     "test": "npm run test -w @acuity/triage-engine",
+    "evaluate": "npm run evaluate -w @acuity/triage-engine",
+    "evaluate:report": "npm run evaluate -w @acuity/triage-engine -- --json",
     "db:generate": "npm run db:generate -w @acuity/web",
     "db:push": "npm run db:push -w @acuity/web",
     "db:seed": "npm run db:seed -w @acuity/web",

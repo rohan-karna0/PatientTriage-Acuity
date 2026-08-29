@@ -3,6 +3,7 @@ import type { EsiLevel } from "@acuity/shared";
 import { evaluateWatch, computeReassessMinutes, isWorseningVitals } from "@acuity/triage-engine";
 import type { Vitals } from "@acuity/shared";
 import { prisma } from "@/lib/prisma";
+import { vitalsUpdateSchema } from "@/lib/schemas";
 import { writeAudit } from "@/lib/triage-service";
 import { parseJson } from "@/lib/utils";
 
@@ -56,11 +57,17 @@ export async function POST() {
   const alerts = evaluateWatch(states);
 
   for (const alert of alerts) {
+    const enc = refreshed.find((e) => e.id === alert.encounterId);
     await writeAudit({
       action: "REASSESS_TRIGGERED",
       entityType: "Encounter",
       entityId: alert.encounterId,
-      payload: alert,
+      payload: {
+        ...alert,
+        patientDisplayName: enc?.patient.displayName,
+        patientExternalId: enc?.patient.externalId,
+        chiefComplaint: enc?.chiefComplaint,
+      },
     });
   }
 
@@ -76,11 +83,11 @@ export async function POST() {
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  const encounterId = body.encounterId as string;
-  const vitals = body.vitals as Vitals;
-  if (!encounterId || !vitals) {
-    return NextResponse.json({ error: "encounterId and vitals required" }, { status: 400 });
+  const parsed = vitalsUpdateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
+  const { encounterId, vitals } = parsed.data;
 
   const encounter = await prisma.encounter.findUniqueOrThrow({
     where: { id: encounterId },
@@ -101,7 +108,14 @@ export async function PUT(req: Request) {
     action: "VITALS_UPDATED",
     entityType: "Encounter",
     entityId: encounterId,
-    payload: { previous, next: vitals, worsening },
+    payload: {
+      previous,
+      next: vitals,
+      worsening,
+      patientDisplayName: encounter.patient.displayName,
+      patientExternalId: encounter.patient.externalId,
+      chiefComplaint: encounter.chiefComplaint,
+    },
   });
 
   let alert = null;
@@ -117,7 +131,12 @@ export async function PUT(req: Request) {
       action: "REASSESS_TRIGGERED",
       entityType: "Encounter",
       entityId: encounterId,
-      payload: alert,
+      payload: {
+        ...alert,
+        patientDisplayName: encounter.patient.displayName,
+        patientExternalId: encounter.patient.externalId,
+        chiefComplaint: encounter.chiefComplaint,
+      },
     });
   }
 

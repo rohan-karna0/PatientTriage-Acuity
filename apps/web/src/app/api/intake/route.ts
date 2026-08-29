@@ -47,18 +47,26 @@ export async function POST(req: Request) {
     },
   });
 
+  const scored = await assessEncounter(encounter.id);
+
   await writeAudit({
     action: "INTAKE_CREATED",
     entityType: "Encounter",
     entityId: encounter.id,
+    inputHash: scored.assessment.inputHash ?? undefined,
     payload: {
       patientExternalId: externalId,
-      consentNoticeAcknowledged: true,
+      displayName: data.displayName,
+      chiefComplaint: data.chiefComplaint,
+      ageYears: data.ageYears,
+      esi: scored.result.esi,
+      bucket: scored.result.bucket,
+      confidence: scored.result.confidence,
+      languageBarrier: data.languageBarrier,
+      consentNoticeAcknowledged: data.consentNoticeAcknowledged,
       purpose: "TRIAGE_DECISION_SUPPORT",
     },
   });
-
-  const scored = await assessEncounter(encounter.id);
 
   return NextResponse.json({
     patient,

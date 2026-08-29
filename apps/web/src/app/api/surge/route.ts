@@ -36,18 +36,14 @@ export async function POST(req: Request) {
     },
   });
 
-  // On enabling surge, re-score active waiting encounters (uncertainty escalation)
+  // Re-score waiting patients when surge toggles (restore or shorten WATCH SLAs)
   let rescored = 0;
+  const waiting = await prisma.encounter.findMany({
+    where: { active: true, status: "waiting" },
+    select: { id: true },
+  });
+
   if (parsed.data.surgeMode) {
-    const waiting = await prisma.encounter.findMany({
-      where: { active: true, status: "waiting" },
-      select: { id: true },
-    });
-    // Simulate 3× pressure: bump wait clocks for non-critical patients
-    await prisma.encounter.updateMany({
-      where: { active: true, status: "waiting" },
-      data: {},
-    });
     for (const e of waiting) {
       const enc = await prisma.encounter.findUnique({ where: { id: e.id } });
       if (!enc) continue;
@@ -55,6 +51,11 @@ export async function POST(req: Request) {
         where: { id: e.id },
         data: { waitingMinutesSim: Math.min(180, Math.round(enc.waitingMinutesSim * 1.5) + 10) },
       });
+      await assessEncounter(e.id);
+      rescored += 1;
+    }
+  } else {
+    for (const e of waiting) {
       await assessEncounter(e.id);
       rescored += 1;
     }

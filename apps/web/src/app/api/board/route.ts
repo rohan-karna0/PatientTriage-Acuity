@@ -34,6 +34,7 @@ export async function GET() {
       lastAssessedAt: e.lastAssessedAt,
       languageBarrier: e.languageBarrier,
       underReportingSuspected: e.underReportingSuspected,
+      vitals: parseJson(e.vitalsJson, {}),
       assessment: a
         ? {
             id: a.id,
@@ -76,18 +77,74 @@ export async function GET() {
 
   const watchAlerts = evaluateWatch(watchStates);
 
+  // Surface recent vitals-worsening alerts from audit (PUT /api/watch)
+  const recentVitalsAlerts = await prisma.auditEvent.findMany({
+    where: {
+      action: "REASSESS_TRIGGERED",
+      createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  const vitalsWorseningAlerts = recentVitalsAlerts
+    .map((ev) => {
+      const payload = parseJson<{ reason?: string; message?: string; severity?: string }>(
+        ev.payloadJson,
+        {},
+      );
+      if (payload.reason !== "VITALS_WORSENING") return null;
+      const stillWaiting = board.some((b) => b.encounterId === ev.entityId);
+      if (!stillWaiting) return null;
+      return {
+        encounterId: ev.entityId,
+        reason: "VITALS_WORSENING" as const,
+        message: payload.message ?? "Vitals indicate deterioration — reassess now",
+        severity: (payload.severity as "critical" | "high" | "moderate") ?? "critical",
+      };
+    })
+    .filter((a): a is NonNullable<typeof a> => a !== null);
+
+  const mergedAlerts = [
+    ...vitalsWorseningAlerts,
+    ...watchAlerts.filter(
+      (a) => !vitalsWorseningAlerts.some((v) => v.encounterId === a.encounterId),
+    ),
+  ];
+
+  const resusCount = board.filter((b) => b.assessment?.recommendedRoute === "resus").length;
+  const acuteCount = board.filter((b) => b.assessment?.recommendedRoute === "acute").length;
+  const fastTrackCount = board.filter((b) => b.assessment?.recommendedRoute === "fast_track").length;
+
   return NextResponse.json({
     hospital,
     surgeMode: hospital?.surgeMode ?? false,
     queue: board,
-    watchAlerts,
+    watchAlerts: mergedAlerts,
+    capacity: {
+      resus: {
+        used: resusCount,
+        total: hospital?.resusBeds ?? 4,
+        label: "Resus",
+      },
+      acute: {
+        used: acuteCount,
+        total: hospital?.acuteBeds ?? 18,
+        label: "Acute care",
+      },
+      fastTrack: {
+        used: fastTrackCount,
+        total: hospital?.fastTrackSlots ?? 8,
+        label: "Fast-track",
+      },
+    },
     stats: {
       waiting: board.length,
       byEsi: [1, 2, 3, 4, 5].map((esi) => ({
         esi,
         count: board.filter((b) => b.assessment?.esi === esi).length,
       })),
-      alerts: watchAlerts.length,
+      alerts: mergedAlerts.length,
     },
   });
 }

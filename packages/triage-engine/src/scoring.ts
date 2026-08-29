@@ -14,11 +14,10 @@ import {
   AMBIGUOUS_KEYWORDS,
   CRITICAL_KEYWORDS,
   HIGH_KEYWORDS,
-  SURGE_WATCH_FACTOR,
   VITAL_THRESHOLDS,
-  WATCH_MINUTES_BY_ESI,
   countPresentVitals,
 } from "./thresholds";
+import { computeReassessMinutes } from "./watch";
 
 export interface ScoreOptions {
   /** When true, ambiguous / uncertain cases escalate one more step. */
@@ -39,12 +38,6 @@ function routeForEsi(esi: EsiLevel): CareRoute {
   if (esi === 3) return "acute";
   if (esi === 4) return "fast_track";
   return "waiting";
-}
-
-function watchMinutes(esi: EsiLevel, surgeMode: boolean): number {
-  const base = WATCH_MINUTES_BY_ESI[esi];
-  if (esi === 1) return 0;
-  return surgeMode ? Math.max(5, Math.round(base * SURGE_WATCH_FACTOR)) : base;
 }
 
 /**
@@ -366,7 +359,7 @@ export function scoreTriage(input: TriageInput, options: ScoreOptions = {}): Tri
     factors,
     ageStratum: stratum,
     recommendedRoute: routeForEsi(esi),
-    watchReassessMinutes: watchMinutes(esi, surgeMode),
+    watchReassessMinutes: computeReassessMinutes(esi, surgeMode),
     summary,
   };
 }
