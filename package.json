@@ -17,6 +17,7 @@
     "db:push": "npm run db:push -w @acuity/web",
     "db:seed": "npm run db:seed -w @acuity/web",
     "setup": "npm install && npm run db:generate && npm run db:push && npm run db:seed",
+    "start": "npm run start -w @acuity/web",
     "lint": "npm run lint -w @acuity/web"
   },
   "engines": {

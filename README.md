@@ -128,7 +128,9 @@ npm run evaluate       # print benchmark table
 npm run evaluate:report  # update benchmark-report.json
 ```
 
-Windows PowerShell: use `npm.cmd` if `npm` is blocked.
+Windows PowerShell: use `npm.cmd` if `npm` is blocked. **Stop `npm run dev` before `npm run build`** (Prisma EPERM on Windows if Node is still running).
+
+Deploy guide: [docs/technical/DEPLOY.md](docs/technical/DEPLOY.md)
 
 ---
 
@@ -190,6 +192,7 @@ docs/
 | Data flow | [docs/technical/DATA_FLOW.md](docs/technical/DATA_FLOW.md) |
 | Evaluation methodology | [docs/technical/EVALUATION.md](docs/technical/EVALUATION.md) |
 | Evaluation results | [docs/technical/EVALUATION_RESULTS.md](docs/technical/EVALUATION_RESULTS.md) |
+| Deploy (Railway) | [docs/technical/DEPLOY.md](docs/technical/DEPLOY.md) |
 | Compliance | [docs/compliance/COMPLIANCE.md](docs/compliance/COMPLIANCE.md) |
 
 ---
