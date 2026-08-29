@@ -8,9 +8,12 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { Logo } from "@/components/Logo";
 import {
   bucketToAcuityColor,
+  defaultEsiForAcuityColor,
+  esiToAcuityColor,
   formatToken,
   formatVitalsSummary,
   formatWaitClock,
+  NURSE_ACUITY_COLORS,
   routeDisplay,
   type AcuityColor,
   type VitalsSnapshot,
@@ -203,6 +206,27 @@ export default function HomePage() {
   const previewColor = doorPreview
     ? bucketToAcuityColor(doorPreview.bucket)
     : ("AMBER" as AcuityColor);
+
+  const overridePreviewColor = esiToAcuityColor(overrideForm.newEsi);
+
+  function openOverrideModal(encounterId?: string) {
+    const id = encounterId ?? selectedId ?? null;
+    const target = id ? board?.queue.find((q) => q.encounterId === id) : null;
+    const esi =
+      target?.assessment?.esi ?? doorPreview?.esi ?? selected?.assessment?.esi ?? 3;
+    if (encounterId) {
+      setOverrideEncounterId(encounterId);
+      focusPatient(encounterId);
+    } else {
+      setOverrideEncounterId(null);
+    }
+    setOverrideForm({
+      newEsi: esi,
+      reasonCode: "CLINICAL_JUDGMENT",
+      note: "",
+    });
+    setShowOverride(true);
+  }
 
   const doorStrings = doorT(lang);
 
@@ -536,10 +560,7 @@ export default function HomePage() {
                       <span className="watch-sla">{al.message.slice(0, 40)}</span>
                       <button
                         className="btn btn-sm btn-danger"
-                        onClick={() => {
-                          focusPatient(al.encounterId);
-                          setShowOverride(true);
-                        }}
+                        onClick={() => openOverrideModal(al.encounterId)}
                       >
                         Reassess now
                       </button>
@@ -630,7 +651,7 @@ export default function HomePage() {
           </ul>
 
           <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
-            <button className="btn btn-danger" onClick={() => setShowOverride(true)}>
+            <button className="btn btn-danger" onClick={() => openOverrideModal()}>
               Override acuity
             </button>
           </div>
@@ -872,7 +893,11 @@ export default function HomePage() {
                   ({overrideTarget.assessment ? bucketToAcuityColor(overrideTarget.assessment.bucket) : "—"})
                 </p>
                 <p>
-                  <strong>Override to:</strong> ESI {overrideForm.newEsi}
+                  <strong>Override to:</strong>{" "}
+                  <span className={`acuity-pill ${overridePreviewColor}`}>
+                    {overridePreviewColor}
+                  </span>{" "}
+                  · ESI {overrideForm.newEsi}
                 </p>
               </div>
             ) : (
@@ -886,6 +911,31 @@ export default function HomePage() {
               trail.
             </p>
             <div className="form-grid">
+              <label className="full">
+                Acuity colour
+                <div className="override-color-picker" role="group" aria-label="Acuity colour">
+                  {NURSE_ACUITY_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`acuity-pill override-color-chip ${color}${
+                        overridePreviewColor === color ? " selected" : ""
+                      }`}
+                      onClick={() =>
+                        setOverrideForm({
+                          ...overrideForm,
+                          newEsi: defaultEsiForAcuityColor(color),
+                        })
+                      }
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+                <span className="field-hint">
+                  Tap RED / AMBER / GREEN / BLUE, then fine-tune ESI below if needed.
+                </span>
+              </label>
               <label>
                 New ESI
                 <select
@@ -896,7 +946,7 @@ export default function HomePage() {
                 >
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>
-                      ESI {n}
+                      ESI {n} ({esiToAcuityColor(n)})
                     </option>
                   ))}
                 </select>

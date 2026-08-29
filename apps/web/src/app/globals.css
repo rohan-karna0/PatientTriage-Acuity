@@ -1364,9 +1364,46 @@ button {
 }
 
 .override-note {
+  margin: 0 0 14px;
   font-size: 13px;
   color: var(--text-secondary);
-  margin: 0 0 16px;
+}
+
+.override-color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.override-color-chip {
+  cursor: pointer;
+  border: 2px solid transparent;
+  font: inherit;
+  min-width: 72px;
+  justify-content: center;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.override-color-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.override-color-chip.selected {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.12);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 .audit-item strong {

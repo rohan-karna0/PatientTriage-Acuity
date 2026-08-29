@@ -25,8 +25,13 @@ function formatShortToken(externalId: string): string {
 
 export function formatAuditSummary(action: string, payload: AuditPayload): string {
   switch (action) {
-    case "OVERRIDE":
-      return `${patientLabel(payload)}: ESI ${payload.previousEsi} → ${payload.newEsi} (${REASON_LABELS[String(payload.reasonCode)] ?? payload.reasonCode})`;
+    case "OVERRIDE": {
+      const prevColor = payload.previousAcuityColor ?? payload.previousBucket;
+      const newColor = payload.newAcuityColor ?? payload.newBucket;
+      const colorPart =
+        prevColor && newColor ? ` · ${prevColor} → ${newColor}` : "";
+      return `${patientLabel(payload)}: ESI ${payload.previousEsi} → ${payload.newEsi}${colorPart} (${REASON_LABELS[String(payload.reasonCode)] ?? payload.reasonCode})`;
+    }
     case "INTAKE_CREATED":
       return `${patientLabel(payload)} · ${payload.ageYears}y · ${payload.chiefComplaint} → ESI ${payload.esi}`;
     case "SCORE_ISSUED":
@@ -57,7 +62,9 @@ export function formatAuditDetails(action: string, payload: AuditPayload): strin
       push("Patient", patientLabel(payload));
       push("Chief complaint", payload.chiefComplaint);
       push("Previous ESI", payload.previousEsi);
+      push("Previous acuity", payload.previousAcuityColor);
       push("New ESI", payload.newEsi);
+      push("New acuity", payload.newAcuityColor);
       push("Reason", REASON_LABELS[String(payload.reasonCode)] ?? payload.reasonCode);
       push("Clinical note", payload.note);
       push("Clinician", payload.clinicianId);

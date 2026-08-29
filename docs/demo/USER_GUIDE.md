@@ -55,8 +55,9 @@ Both paths **save the patient**. Only Override changes acuity with a documented 
 
 - Patient token + name
 - Chief complaint
-- System recommendation (current ESI)
-- Target ESI you selected
+- System recommendation (current ESI + colour)
+- **Acuity colour** — tap RED / AMBER / GREEN / BLUE (same bands as Accept button)
+- **New ESI** — fine-tune level; colour updates with ESI
 - Reason code + clinical note (required)
 
 ---

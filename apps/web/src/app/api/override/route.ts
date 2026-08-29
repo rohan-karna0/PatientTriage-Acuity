@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { overrideSchema } from "@/lib/schemas";
 import { writeAudit } from "@/lib/triage-service";
 import { getClinician, hashInputs } from "@/lib/utils";
+import { esiToAcuityColor } from "@/lib/display";
 import { computeReassessMinutes } from "@acuity/triage-engine";
 
 export const dynamic = "force-dynamic";
@@ -93,7 +94,9 @@ export async function POST(req: Request) {
       patientExternalId: encounter.patient.externalId,
       chiefComplaint: encounter.chiefComplaint,
       previousEsi: prior.esi,
+      previousAcuityColor: esiToAcuityColor(prior.esi),
       newEsi: esi,
+      newAcuityColor: esiToAcuityColor(esi),
       reasonCode,
       note,
       clinicianId,

@@ -1,12 +1,34 @@
 /** Nurse-facing display helpers — keeps UI labels consistent and clinical. */
 
+import { ESI_TO_BUCKET, type EsiLevel } from "@acuity/shared";
+
 export type AcuityColor = "RED" | "AMBER" | "GREEN" | "BLUE";
+
+/** Nurse console acuity bands (matches Accept — RED / AMBER / GREEN buttons). */
+export const NURSE_ACUITY_COLORS: AcuityColor[] = ["RED", "AMBER", "GREEN", "BLUE"];
 
 export function bucketToAcuityColor(bucket: string): AcuityColor {
   if (bucket === "RED" || bucket === "ORANGE") return "RED";
   if (bucket === "YELLOW") return "AMBER";
   if (bucket === "GREEN") return "GREEN";
   return "BLUE";
+}
+
+/** Map ESI level → nurse-facing colour pill. */
+export function esiToAcuityColor(esi: number): AcuityColor {
+  const level = Math.min(5, Math.max(1, Math.round(esi))) as EsiLevel;
+  return bucketToAcuityColor(ESI_TO_BUCKET[level]);
+}
+
+/** Default ESI when nurse picks a colour band in override modal. */
+export function defaultEsiForAcuityColor(color: AcuityColor): number {
+  const map: Record<AcuityColor, number> = {
+    RED: 2,
+    AMBER: 3,
+    GREEN: 4,
+    BLUE: 5,
+  };
+  return map[color];
 }
 
 export function formatWaitClock(totalMinutes: number): string {
