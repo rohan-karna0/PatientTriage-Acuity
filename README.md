@@ -1,360 +1,240 @@
 # Acuity — PatientTriage.ai
 
-**AI-powered Emergency Department (ED) triage decision support system**
+Acuity is an AI-powered clinical decision-support system designed to assist
+emergency department triage nurses in prioritizing and routing patients at the
+point of entry. For site administrators evaluating the prototype, it offers a
+complete triage workflow — intake, prioritization, monitoring, and audit — in
+a single console, without requiring a live clinical backend to try it out.
 
-**Team ProjectVector · IIT Jodhpur · Accenture Innovation Challenge 2026**
+Developers, on the other hand, will find a clear separation between the
+triage-scoring engine and the nurse-facing application, making it
+straightforward to extend the scoring logic, add new backends, or integrate
+with hospital systems. Hence the modular package layout, with the engine kept
+independent from the web application.
 
----
+For a full description of the system, see the project proposal document.
+To submit issues or track development, use the project's issue tracker.
 
-## Overview
+Acuity is designed to support clinical judgment, not replace it. The triage
+nurse remains the final decision-maker for every patient.
 
-**Acuity** is an AI-powered clinical decision-support system designed to assist emergency department triage nurses in prioritizing and routing patients at the point of entry.
 
-It helps nurses:
+## Table of contents
 
-* Prioritize patients using an acuity score
-* Maintain a fair, dynamic waiting-room queue
-* Identify patients who may be deteriorating while waiting
-* Handle incomplete or uncertain patient information safely
-* Adapt triage decisions during periods of emergency-department surge
-* Maintain a transparent audit trail of triage decisions and overrides
+- Requirements
+- Installation
+- Configuration
+- Key features
+- Information for developers
+- Evaluation
+- Maintainers
 
-Acuity is designed to **support clinical judgment, not replace it**. The triage nurse remains the final decision-maker for every patient.
 
----
+## Requirements
 
-## Key Features
+- Node.js 20 or later
+- npm
 
-### DOOR — Patient Intake
+No other services are required to run the prototype. The default setup uses
+SQLite for local development, so no separate database server needs to be
+installed.
 
-A fast intake interface designed for the first 0–90 seconds of patient assessment.
+### Recommended reading
 
-* Chief-complaint selection
-* Patient identification
-* Vital-sign entry
-* Live ESI acuity preview
-* Support for sparse or incomplete vitals
-* English and हिंदी interface
-* Clear uncertainty and escalation indicators
+There are a few documents worth reviewing before deploying or extending
+Acuity:
 
-### FLOW — Priority Queue
+- **Business proposal:** Describes the problem, solution, roadmap, and
+  business model behind the system.
+- **Safety-first design notes:** Explains the escalation-bias and
+  uncertainty-handling principles the triage engine follows.
+- **Benchmark report:** Contains the golden-case results referenced under
+  Evaluation, below.
 
-A live waiting-room board that helps nurses understand who should be prioritized next.
 
-* Dynamic acuity-based prioritization
-* Patient-level ESI scores
-* Age-aware triage
-* Queue re-scoring when conditions change
-* Quick access to patient details
-* Designed for high-volume emergency-department workflows
+## Installation
 
-### WATCH — Waiting Patient Monitoring
-
-Acuity continuously reassesses patients who are waiting for care.
-
-* Tracks waiting time against acuity-specific thresholds
-* Generates reassessment alerts
-* Supports simulated time progression for demonstrations
-* Detects worsening vitals
-* Escalates patients when risk increases
-* Prevents patients from silently becoming lower priority while waiting
-
-### Surge Mode
-
-Designed for periods of approximately **3× normal patient load**.
-
-Surge mode:
-
-* Shortens WATCH reassessment thresholds
-* Increases sensitivity to uncertainty
-* Escalates ambiguous cases
-* Re-scores the waiting queue
-* Helps nurses manage increased patient volume
-
-Surge mode can be ended once the department returns to normal operating conditions.
-
-### Accept vs Override
-
-The system provides a recommendation, while the nurse retains final authority.
-
-* **Accept** — nurse agrees with the system's recommendation
-* **Override** — nurse disagrees and records a clinical reason and note
-* Overrides are permanently recorded in the audit trail
-* The system never automatically downgrades a patient
-
-### Audit Trail
-
-Every important triage action is recorded in an append-only audit history.
-
-Examples include:
-
-* `INTAKE_CREATED`
-* `OVERRIDE`
-* `WATCH_TICK`
-* Reassessment events
-* Surge-mode changes
-* Other patient-priority changes
-
-The audit trail provides transparency into how and why triage decisions changed over time.
-
----
-
-## Safety-First Design
-
-Acuity is designed around the principle that **missing information should increase caution rather than create false reassurance**.
-
-| Principle                                    | Implementation                                                    |
-| -------------------------------------------- | ----------------------------------------------------------------- |
-| Missing data is not normal data              | Sparse vitals increase uncertainty and can escalate acuity        |
-| Under-triage is more costly than over-triage | Escalation bias is applied to uncertain cases                     |
-| Never auto-downgrade                         | Downgrades require a clinician override                           |
-| Age matters                                  | Pediatric, adult, and geriatric thresholds are handled separately |
-| Uncertainty is visible                       | Scores include confidence and uncertainty drivers                 |
-| Clinician remains in control                 | Nurses can accept or override every recommendation                |
-| Decisions are traceable                      | Important actions are captured in the audit trail                 |
-
----
-
-## Triage Engine
-
-The Acuity triage engine uses an **age-stratified hybrid ESI scoring approach**.
-
-It considers:
-
-* Chief complaint
-* Vital signs
-* Age group
-* Clinical severity indicators
-* Missing or sparse information
-* Uncertainty
-* Emergency-department surge conditions
-
-The engine produces an acuity recommendation together with:
-
-* **ESI level**
-* **Confidence**
-* **Uncertainty drivers**
-* **Escalation indicators**
-
-The design intentionally favors **safe escalation in ambiguous situations** rather than silently assuming that missing information is normal.
-
----
-
-## Evaluation
-
-Acuity includes a reproducible benchmark consisting of **35 expert-designed clinical vignettes**.
-
-### Latest verified results
-
-**Verified: August 29, 2026**
-
-| Metric                     |           Result |
-| -------------------------- | ---------------: |
-| Engine tests               | **25/25 passed** |
-| Golden benchmark ESI match |         **100%** |
-| Under-triage rate          |           **0%** |
-| Critical miss rate         |    **0% (0/11)** |
-
-The benchmark and evaluation pipeline are included in the repository so that results can be reproduced locally.
-
----
-
-## Technology Stack
-
-* **Next.js** — Web application and nurse console
-* **TypeScript** — Application and shared type safety
-* **Prisma** — Database access and schema
-* **SQLite** — Local development database
-* **Vitest** — Automated engine testing
-* **Node.js 20+** — Runtime
-* **REST API** — Communication between the interface and triage services
-
----
-
-## Architecture
-
-```text
-                    ┌──────────────────────┐
-                    │      DOOR Intake     │
-                    │ Patient + Vitals +   │
-                    │ Chief Complaint       │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │    Triage Engine     │
-                    │                      │
-                    │ Age-aware scoring     │
-                    │ Uncertainty handling │
-                    │ Escalation logic      │
-                    └──────────┬───────────┘
-                               │
-                ┌──────────────┼──────────────┐
-                ▼              ▼              ▼
-          ┌──────────┐   ┌──────────┐   ┌──────────┐
-          │   FLOW   │   │  WATCH   │   │  Audit   │
-          │  Queue   │   │ Monitor  │   │  Trail   │
-          └──────────┘   └──────────┘   └──────────┘
-                │              │
-                └──────┬───────┘
-                       ▼
-               ┌───────────────┐
-               │ Nurse Decision│
-               │ Accept /      │
-               │ Override      │
-               └───────────────┘
-```
-
----
-
-## API
-
-| Method | Endpoint        | Purpose                                         |
-| ------ | --------------- | ----------------------------------------------- |
-| `GET`  | `/api/board`    | Retrieve queue, capacity and WATCH alerts       |
-| `POST` | `/api/intake`   | Create patient intake and generate triage score |
-| `POST` | `/api/override` | Record clinician override                       |
-| `POST` | `/api/surge`    | Enable or disable surge mode                    |
-| `POST` | `/api/watch`    | Advance simulated time and reassess patients    |
-| `PUT`  | `/api/watch`    | Update patient vitals and reassess risk         |
-| `GET`  | `/api/audit`    | Retrieve the audit history                      |
-
----
-
-## Project Structure
-
-```text
-apps/
-└── web/
-    ├── Next.js nurse console
-    ├── REST API
-    └── Prisma database schema
-
-packages/
-├── triage-engine/
-│   ├── ESI scoring engine
-│   └── Vitest tests
-│
-└── shared/
-    ├── Shared types
-    ├── ESI mappings
-    └── Audit schemas
-
-data/
-├── patients.seed.json
-└── benchmark/
-    ├── golden-cases.json
-    └── benchmark-report.json
-
-
-
----
-
-## Getting Started
-
-### Requirements
-
-* Node.js 20+
-* npm
-
-### Installation
+Install dependencies and initialize the local environment with:
 
 ```bash
 npm run setup
 ```
 
-This installs dependencies, initializes the local database, and seeds the development environment with synthetic patient data.
+This installs dependencies, initializes the local database, and seeds the
+development environment with synthetic patient data. No real patient records
+are required to run the application locally.
 
-### Start the application
+Start the application with:
 
 ```bash
 npm run dev
 ```
 
-The application will be available at:
+The application will then be available at `http://localhost:3000`.
 
-```text
-http://localhost:3000
-```
 
-### Run tests
+## Configuration
+
+After installation, for a quick start, the seeded synthetic data is enough to
+explore the DOOR, FLOW, and WATCH workflows without any further setup.
+
+Otherwise, you may want to configure a hospital profile — patient volume,
+treatment capacity, surge multiplier, staffing conditions, and supported
+languages — to match the environment you are demonstrating (rural/community
+ED, urban hospital, or trauma center). Hospital profiles are configuration,
+not separate builds of the software.
+
+Run the automated test suite with:
 
 ```bash
 npm test
 ```
 
-### Run the benchmark
+Run the clinical benchmark with:
 
 ```bash
 npm run evaluate
 ```
 
-### Generate the benchmark report
+Generate the benchmark report with:
 
 ```bash
 npm run evaluate:report
 ```
 
----
+### Hidden configuration
 
-## Demo Workflow
+There are some behaviors that are intentional design decisions rather than
+user-facing settings:
 
-A typical demonstration follows the clinical workflow:
+- Downgrades are never performed automatically. A patient's acuity can only be
+  lowered by a nurse recording an explicit override with a reason.
+- Missing or sparse vitals increase uncertainty rather than being treated as
+  normal. This cannot be disabled from the interface.
+- Surge Mode changes reassessment thresholds and escalation sensitivity while
+  active, and must be turned off manually once patient volume returns to
+  normal.
 
-```text
-Patient arrives
-      ↓
-DOOR — Rapid intake
-      ↓
-Triage Engine — Acuity + uncertainty
-      ↓
-FLOW — Priority queue
-      ↓
-WATCH — Monitor while waiting
-      ↓
-Reassessment / escalation if required
-      ↓
-Nurse decision
-      ↓
-Accept or Override
-      ↓
-Audit Trail
-```
 
-During high patient volume, **Surge Mode** increases monitoring sensitivity and dynamically re-prioritizes the queue. Once the department returns to normal conditions, Surge Mode can be turned off.
+## Key features
 
----
+**DOOR — Patient Intake:** A fast intake interface for the first 0–90 seconds
+of assessment: chief-complaint selection, patient identification, vital-sign
+entry, a live ESI acuity preview, support for sparse or incomplete vitals, an
+English/Hindi interface, and clear uncertainty and escalation indicators.
 
-## Data & Privacy
+**FLOW — Priority Queue:** A live waiting-room board with dynamic
+acuity-based prioritization, patient-level ESI scores, age-aware triage,
+queue re-scoring when conditions change, and quick access to patient details.
 
-The project uses **synthetic patient data** for development, testing, and demonstration.
+**WATCH — Waiting Patient Monitoring:** Continuously reassesses waiting
+patients: tracks waiting time against acuity-specific thresholds, generates
+reassessment alerts, detects worsening vitals, and escalates patients when
+risk increases.
 
-No real patient records are required to run the application locally.
+**Surge Mode:** For periods of roughly 3× normal patient load: shortens WATCH
+reassessment thresholds, increases sensitivity to uncertainty, escalates
+ambiguous cases, and re-scores the waiting queue.
 
-The system is designed with privacy, traceability, and responsible clinical decision support in mind. Additional compliance considerations are documented separately in the project documentation.
+**Accept vs Override:** The system recommends; the nurse decides. Accept
+means the nurse agrees with the recommendation. Override means the nurse
+disagrees and records a clinical reason and note. Overrides are permanently
+logged, and the system never automatically downgrades a patient.
 
----
+**Audit Trail:** Every important triage action — intake, overrides,
+reassessments, surge-mode changes — is recorded in an append-only history,
+giving transparency into how and why decisions changed over time.
 
-## Important Disclaimer
 
-Acuity is a **clinical decision-support prototype**.
+## Information for developers
 
-It is not intended to diagnose patients, replace trained medical professionals, or make autonomous clinical decisions.
+The Acuity triage engine uses an age-stratified hybrid ESI scoring approach.
+It considers chief complaint, vital signs, age group, clinical severity
+indicators, missing or sparse information, uncertainty, and ED surge
+conditions, and produces a recommendation together with an ESI level,
+confidence, uncertainty drivers, and escalation indicators.
 
-All triage recommendations should be reviewed by qualified clinical staff, with the final triage decision remaining with the responsible healthcare professional.
+### Safety principles
 
----
+These principles are followed throughout the engine and are not configurable:
 
-## Team
+- Missing data is not normal data — sparse vitals increase uncertainty and
+  can escalate acuity.
+- Under-triage is treated as more costly than over-triage — an escalation
+  bias is applied to uncertain cases.
+- Age matters — pediatric, adult, and geriatric thresholds are handled
+  separately.
+- Uncertainty is always visible — scores include confidence and uncertainty
+  drivers, never a bare number.
+- Decisions are traceable — important actions are captured in the audit
+  trail.
 
-**ProjectVector — IIT Jodhpur**
+### API
 
-* Rohan Karna
-* Sushantak Parashar Jha
-* Hrishita Das
+The web application exposes the following endpoints:
 
----
+| Method | Endpoint         | Purpose                                          |
+|--------|------------------|---------------------------------------------------|
+| GET    | `/api/board`     | Retrieve queue, capacity, and WATCH alerts        |
+| POST   | `/api/intake`    | Create patient intake and generate triage score   |
+| POST   | `/api/override`  | Record clinician override                         |
+| POST   | `/api/surge`     | Enable or disable surge mode                       |
+| POST   | `/api/watch`     | Advance simulated time and reassess patients       |
+| PUT    | `/api/watch`     | Update patient vitals and reassess risk            |
+| GET    | `/api/audit`     | Retrieve the audit history                         |
 
-## License
+### Project structure
 
-This project is licensed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+The codebase is organized as a monorepo:
+
+- `apps/web` — Next.js nurse console, REST API, and Prisma schema
+- `packages/triage-engine` — ESI scoring engine and Vitest tests
+- `packages/shared` — Shared types, ESI mappings, and audit schemas
+- `data/` — Synthetic seed data and the golden benchmark cases
+
+### Technology stack
+
+- **Next.js** — Web application and nurse console
+- **TypeScript** — Application and shared type safety
+- **Prisma** — Database access and schema
+- **SQLite** — Local development database
+- **Vitest** — Automated engine testing
+- **Node.js 20+** — Runtime
+- **REST API** — Communication between the interface and triage services
+
+
+## Evaluation
+
+Acuity includes a reproducible benchmark of 35 expert-designed clinical
+vignettes. The benchmark and evaluation pipeline are included in the
+repository so results can be reproduced locally with `npm run evaluate`.
+
+Latest verified results (verified August 29, 2026):
+
+| Metric                     | Result        |
+|-----------------------------|---------------|
+| Engine tests                 | 25/25 passed  |
+| Golden benchmark ESI match   | 100%          |
+| Under-triage rate            | 0%            |
+| Critical miss rate           | 0% (0/11)     |
+
+These results validate the current prototype and are not a substitute for
+prospective clinical validation.
+
+
+## Important disclaimer
+
+Acuity is a clinical decision-support prototype. It is not intended to
+diagnose patients, replace trained medical professionals, or make autonomous
+clinical decisions. All triage recommendations should be reviewed by
+qualified clinical staff, with the final triage decision remaining with the
+responsible healthcare professional.
+
+
+## Maintainers
+
+Current maintainers, Team ProjectVector — IIT Jodhpur:
+
+- Rohan Karna
+- Sushantak Parashar Jha
+- Hrishita Das
