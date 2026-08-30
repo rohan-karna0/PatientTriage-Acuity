@@ -14,4 +14,3 @@ coverage/
 .turbo/
 *.tsbuildinfo
 packages/triage-engine/benchmark-report.json
-docs/
