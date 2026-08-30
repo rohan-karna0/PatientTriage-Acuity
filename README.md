@@ -246,13 +246,7 @@ data/
     ├── golden-cases.json
     └── benchmark-report.json
 
-docs/
-├── demo/
-├── technical/
-├── proposal/
-├── compliance/
-└── submission/
-```
+
 
 ---
 
